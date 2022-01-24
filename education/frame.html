@@ -67,7 +67,8 @@
         .active,
         .subnav-content a:hover,
         .tableBtn:hover,
-        .qaBtn:hover {
+        .qaBtn:hover,
+        .toTop:hover {
             background-color: #eee;
             color: black;
         }
@@ -87,7 +88,7 @@
 
         }
 
-        .navbar .closebtn {
+        .navbar .closeBtn {
             position: absolute;
             top: 0;
             right: 30px;
@@ -118,7 +119,7 @@
 
         }
 
-        .subnav .subnavbtn {
+        .subnav .subnavBtn {
             font-size: 18px;
             border: none;
             outline: none;
@@ -126,7 +127,6 @@
             padding-top: 20px;
             padding-bottom: 5px;
             background-color: inherit;
-            font-family: inherit;
 
         }
 
@@ -145,10 +145,6 @@
             font-weight: bolder;
         }
 
-        .change {
-            display: block !important;
-        }
-
         .tableBtn {
             color: #012061;
             font-size: 18px;
@@ -160,8 +156,17 @@
             padding: 5px !important;
         }
 
-        .tableContent {
-            width: 100%;
+        .tableContent td {
+            line-height: 1.6 !important;
+            text-align: justify;
+        }
+
+        .tableContent ul {
+            padding-inline: 20px;
+        }
+
+        .tableContent h4 {
+            color: #2e557e;
         }
 
         .toTop {
@@ -173,10 +178,7 @@
             bottom: 10px;
             right: 10px;
             font-size: 26px;
-        }
-
-        .toTop:hover {
-            background-color: #c4d6ee;
+            display: none;
         }
 
         .page {
@@ -199,14 +201,44 @@
 
         }
 
+        #dTable img {
+            max-width: 100%;
+        }
+
         .qaImg {
-            width: 100%;
+            max-width: 100%;
             display: none;
             padding: 5px;
         }
+
+        @media (max-width:414px) {
+            .tableBtn {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width:375px) {
+            .tableBtn {
+                font-size: 14px;
+            }
+
+            .homeBar a {
+                font-size: 22px;
+            }
+        }
+
+        @media print {
+            @page {
+                size: A4 portrait;
+            }
+
+
+        }
     </style>
     <script>
+        // 此為jquery的寫法，較精簡
         $(document).ready(function () {
+            // 回到最上層的按鈕
             $('.toTop').on('click', function (e) {
                 e.preventDefault();
                 $('html,body').animate({ // 有些瀏覽器只支援html，有些只支援body 所以兩個都寫進去
@@ -217,14 +249,23 @@
             $("#menuBtn").click(function () {
                 closeNav();
                 $("#subDrug, #result").hide();
-                $('#menuQA').show();
+                $('#menuQA, .toTop').show();
             });
             // 開啟藥品查詢頁面
             $("#drugBtn").click(function () {
                 closeNav();
-                $("#menuQA, #result").hide();
+                $("#menuQA, #result, .toTop").hide();
                 $('#subDrug').show();
             });
+            // 搜尋疾病衛教內容
+            $('.subnav-content a').click(function () {
+                closeNav();
+                var searchText = $(this).text();
+                // 讓google script跑 search()，回傳的資料再丟進createTable()
+                google.script.run.withSuccessHandler(createTable).search(searchText);
+                $('#subDrug, #menuQA').hide();
+                $('#result, .toTop').show()
+            })
             // 藥品查詢 : 切換民眾版，專業版
             $('.subDrugBtn').click(function () {
                 var check = $(this).hasClass('active');
@@ -234,95 +275,97 @@
                     $('.iframe').toggle();
                 }
             });
+            // 打開疾病次選單
+            $('.subnavBtn').click(function () {
+                $(this).next().toggle();
+            })
+            // 常見問題
+            $('#menuQA a').click(function () {
+                $(this).next().toggle(); // 讓圖片從 display:none 變成 block，圖片預設為none
+                var icon = $(this).children() // 選定<a>裡面的<i>
+                icon.toggleClass('fa-plus-circle, fa-minus-circle'); // 點下去之後切換+-圖案
+                // var img = $(this).siblings('.qaImg');
+                // $(img).not($(this).next()).hide();
+
+                // if($(".qaImg").is(':hidden') &&  $("#menuQA i").not(icon).hasClass('fa-minus-circle') ){
+                //     $("#menuQA i").not(icon).addClass('fa-plus-circle');
+                //     $("#menuQA i").not(icon).removeClass('fa-minus-circle');
+
+                // }
+
+                if ($(icon).hasClass('fa-minus-circle')) {
+                    var offset = $(this).offset();
+                    offset.top -= 100;
+                    $('html, body').animate({
+                        scrollTop: offset.top,
+                    });
+                }
+
+            })
         })
-        function scrollContent_A() {
-            var offset = $('.information').offset(); // Contains .top and .left
-            offset.top -= 100;
-            $('html, body').animate({
-                scrollTop: offset.top,
-            });
-        }
-        function scrollContent_B() {
-            var offset = $('.therapy').offset(); // Contains .top and .left
-            offset.top -= 100;
-            $('html, body').animate({
-                scrollTop: offset.top,
-            });
-        }
-        function scrollContent_C() {
-            var offset = $('.selfCare').offset(); // Contains .top and .left
-            offset.top -= 100;
-            $('html, body').animate({
-                scrollTop: offset.top,
-            });
-        }
-        function scrollContent_D() {
-            var offset = $('.others').offset(); // Contains .top and .left
-            offset.top -= 100;
-            $('html, body').animate({
-                scrollTop: offset.top,
-            });
-        }
-        function openNav() {
-            document.getElementById("navbar").style.width = "35%";
-        }
-        function closeNav() {
-            document.getElementById("navbar").style.width = "0";
-        }
-        function searchMenu(divElement) {
-            closeNav();
-            searchGoogleSheet(divElement);
-            document.getElementById('subDrug').style.display = "none";
-            document.getElementById("menuQA").style.display = "none";
-            document.getElementById('result').style.display = "block";
-        }
-        function toggleQA(element) {
-            change(element);
-            var icon = element.firstElementChild;
-            icon.classList.toggle('fa-plus-circle');
-            icon.classList.toggle('fa-minus-circle');
-        }
-        function change(element) {
-            element.nextElementSibling.classList.toggle('change');
-        }
-        function searchGoogleSheet(divElement) {
-            var searchText = $(divElement).text();
-            google.script.run.withSuccessHandler(createTable).search(searchText);
-        }
+        // 創建圖文內容，內容資料(dataArray)來自於google script上 search()的回傳值
         function createTable(dataArray) {
             if (dataArray !== undefined && dataArray.length != 0) {
                 var dataResult = "<table class='table table-sm table-striped' style='border-collapse: separate'; id='dtable' >" +
                     "<thead >" +
                     "<tr style='position:sticky; top:50px'>"
                 for (var i = 0; i < dataArray.length; i++) {
-                    for (var j = 1; j < 5; j++) {
+                    for (var j = 1; j < 5; j++) {  // 試算表上的四個按鈕
                         dataResult += "<td class='tableBtn' style='width:25%'>" + dataArray[i][j] + "</td>";
                     }
                 }
                 dataResult +=
                     "</tr>"
                 for (var i = 0; i < dataArray.length; i++) {
-                    for (var j = 5; j < dataArray[i].length; j++) {
+                    for (var j = 5; j < dataArray[i].length; j++) {   // 後續的圖文內容
                         if (dataArray[i][j] != undefined && dataArray[i][j] != "") {
-                            if (isURL(dataArray[i][j])) {
-                                dataResult += "<tr class='tableContent'>" + "<td colspan='4'><img src='" + dataArray[i][j] + "'  style='width:100%'></td>" + "</tr>"
-                            }
-                            else {
-                                dataResult += "<tr class='tableContent'>" + "<td colspan='4' style='font-size:20px'>" + dataArray[i][j] + "</td>" + "</tr>"
-                            }
+                            dataResult += "<tr class='tableContent'>" + "<td colspan='4' >" + dataArray[i][j] + "</td>" + "</tr>"
                         }
                     }
                 }
-                dataResult +=
-                    "</thead>" +
-                    "</table>";
-                var div = document.getElementById('result');
-                div.innerHTML = dataResult;
+                dataResult += "</thead>" + "</table>";
+                document.getElementById('result').innerHTML = dataResult;
             }
             else {
-                var div = document.getElementById('result');
-                div.innerHTML = "目前無資料!";
+                document.getElementById('result').innerHTML = "目前無資料!";
             }
+        }
+        // 試算表上B~E欄的四個捲動按鈕
+        function scrollContent_A() {
+            var offset = $('.information').offset();
+            offset.top -= 100;
+            $('html, body').animate({
+                scrollTop: offset.top,
+            });
+        }
+        function scrollContent_B() {
+            var offset = $('.therapy').offset();
+            offset.top -= 100;
+            $('html, body').animate({
+                scrollTop: offset.top,
+            });
+        }
+        function scrollContent_C() {
+            var offset = $('.selfCare').offset();
+            offset.top -= 100;
+            $('html, body').animate({
+                scrollTop: offset.top,
+            });
+        }
+        function scrollContent_D() {
+            var offset = $('.others').offset();
+            offset.top -= 100;
+            $('html, body').animate({
+                scrollTop: offset.top,
+            });
+        }
+        // 打開右側導覽列
+        function openNav() {
+            document.getElementById("navbar").style.width = "35%";
+        }
+        // 關閉右側導覽列
+        function closeNav() {
+            document.getElementById("navbar").style.width = "0";
         }
         // 判斷string 是否為網址
         function isURL(string) {
@@ -339,108 +382,118 @@
 
 <body>
 
+    <!-- 上方導覽列 -->
     <div class="homeBar" id="homeBar">
-        <a href='#' id="drugBtn"><i class="fa fa-search"></i>&nbsp藥品</a>
-        <a href='#' id="menuBtn"><i class='fa fa-question-circle'></i>&nbsp常見問題</a>
-        <a href='#' id="navBtn" onclick="openNav()"><i class="fa fa-bars"></i>&nbsp衛教</a>
+        <!-- javascript:void(0)意思是點下去回傳0(false)不做事 -->
+        <a href="javascript:void(0)" id="drugBtn"><i class="fa fa-search"></i>&nbsp;藥品</a>
+        <a href="javascript:void(0)" id="menuBtn"><i class='fa fa-question-circle'></i>&nbsp;常見問題</a>
+        <a href="javascript:void(0)" id="navBtn" onclick="openNav()"><i class="fa fa-bars"></i>&nbsp;衛教</a>
     </div>
+    <!-- 右側導覽列 -->
     <div class="navbar" id="navbar">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <a href="javascript:void(0)" class="closeBtn" onclick="closeNav()">&times;</a>
         <div class="subnav">
-            <button class="subnavbtn" onclick="change(this)">心血管內科<br><i class="fa fa-caret-down"></i></button>
+            <button class="subnavBtn">心血管內科<br><i class="fa fa-caret-down"></i></button>
             <div class="subnav-content">
-                <a href="#" onclick="searchMenu(this);">高血壓</a>
-                <a href="#" onclick="searchMenu(this);">心衰竭</a>
-                <a href="#" onclick="searchMenu(this);">冠心症</a>
-                <a href="#" onclick="searchMenu(this);">心律不整</a>
+                <a href="javascript:void(0)">高血壓</a>
+                <a href="javascript:void(0)">心衰竭</a>
+                <a href="javascript:void(0)">冠心症</a>
+                <a href="javascript:void(0)">心律不整</a>
             </div>
         </div>
         <div class="subnav">
-            <button class="subnavbtn" onclick="change(this)">內分泌科<br><i class="fa fa-caret-down"></i></button>
+            <button class="subnavBtn">內分泌科<br><i class="fa fa-caret-down"></i></button>
             <div class="subnav-content">
-                <a href="#" onclick="searchMenu(this);">糖尿病</a>
-                <a href="#" onclick="searchMenu(this);">甲狀腺疾病</a>
-                <a href="#" onclick="searchMenu(this);">代謝症候群</a>
+                <a href="javascript:void(0)">糖尿病</a>
+                <a href="javascript:void(0)">甲狀腺疾病</a>
+                <a href="javascript:void(0)">代謝症候群</a>
             </div>
         </div>
         <div class="subnav">
-            <button class="subnavbtn" onclick="change(this)">神經科<br><i class="fa fa-caret-down"></i></button>
+            <button class="subnavBtn">神經科<br><i class="fa fa-caret-down"></i></button>
             <div class="subnav-content">
-                <a href="#" onclick="searchMenu(this);">中風</a>
-                <a href="#" onclick="searchMenu(this);">失智症</a>
-                <a href="#" onclick="searchMenu(this);">帕金森氏症</a>
+                <a href="javascript:void(0)">中風</a>
+                <a href="javascript:void(0)">失智症</a>
+                <a href="javascript:void(0)">帕金森氏症</a>
             </div>
         </div>
         <div class="subnav">
-            <button class="subnavbtn" onclick="change(this)">腎臟科<br><i class="fa fa-caret-down"></i></button>
+            <button class="subnavBtn">腎臟科<br><i class="fa fa-caret-down"></i></button>
             <div class="subnav-content">
-                <a href="#" onclick="searchMenu(this);">慢性腎臟病</a>
-                <a href="#" onclick="searchMenu(this);">貧血</a>
-                <a href="#" onclick="searchMenu(this);">血液透析</a>
+                <a href="javascript:void(0)">慢性腎臟病</a>
+                <a href="javascript:void(0)">貧血</a>
+                <a href="javascript:void(0)">血液透析</a>
             </div>
         </div>
         <div class="subnav">
-            <button class="subnavbtn" onclick="change(this)">胸腔科<br><i class="fa fa-caret-down"></i></button>
+            <button class="subnavBtn">胸腔科<br><i class="fa fa-caret-down"></i></button>
             <div class="subnav-content">
-                <a href="#" onclick="searchMenu(this);">氣喘</a>
-                <a href="#" onclick="searchMenu(this);">慢性阻塞性肺病</a>
+                <a href="javascript:void(0)">氣喘</a>
+                <a href="javascript:void(0)">慢性阻塞性肺病</a>
             </div>
         </div>
         <div class="subnav">
-            <button class="subnavbtn" onclick="change(this)">肝膽腸胃科<br><i class="fa fa-caret-down"></i></button>
+            <button class="subnavBtn">肝膽腸胃科<br><i class="fa fa-caret-down"></i></button>
             <div class="subnav-content">
-                <a href="#" onclick="searchMenu(this);">慢性肝炎</a>
-                <a href="#" onclick="searchMenu(this);">胃食道逆流</a>
-                <a href="#" onclick="searchMenu(this);">消化性潰瘍</a>
+                <a href="javascript:void(0)">慢性肝炎</a>
+                <a href="javascript:void(0)">胃食道逆流</a>
+                <a href="javascript:void(0)">消化性潰瘍</a>
             </div>
         </div>
         <div class="subnav">
-            <button class="subnavbtn" onclick="change(this)">風濕免疫科<br><i class="fa fa-caret-down"></i></button>
+            <button class="subnavBtn">風濕免疫科<br><i class="fa fa-caret-down"></i></button>
             <div class="subnav-content">
-                <a href="#" onclick="searchMenu(this);">痛風</a>
-                <a href="#" onclick="searchMenu(this);">類風溼關節炎</a>
-                <a href="#" onclick="searchMenu(this);">紅斑性狼瘡</a>
+                <a href="javascript:void(0)">痛風</a>
+                <a href="javascript:void(0)">類風溼關節炎</a>
+                <a href="javascript:void(0)">紅斑性狼瘡</a>
             </div>
         </div>
         <div class="subnav">
-            <button class="subnavbtn" onclick="change(this)">感染科<br><i class="fa fa-caret-down"></i></button>
+            <button class="subnavBtn">感染科<br><i class="fa fa-caret-down"></i></button>
             <div class="subnav-content">
-                <a href="#" onclick="searchMenu(this);">愛滋病</a>
-                <a href="#" onclick="searchMenu(this);">肺結核</a>
-                <a href="#" onclick="searchMenu(this);">疫苗相關</a>
+                <a href="javascript:void(0)">愛滋病</a>
+                <a href="javascript:void(0)">肺結核</a>
+                <a href="javascript:void(0)">疫苗相關</a>
             </div>
         </div>
     </div>
+    <!-- 藥品查詢 -->
     <div id='subDrug' class="page" style="display: block;">
         <button class="subDrugBtn active">民眾版</button>
         <button class="subDrugBtn">專業版</button>
+        <!-- 嵌入藥品查詢民眾版 -->
         <iframe id="iframe" class="iframe" src="https://7110er.github.io/pharm.github.io/searchDrug/index"></iframe>
+        <!-- 嵌入藥品查詢專業版 -->
         <iframe id="iframe_Med" class="iframe" style="display: none;"
             src="https://7110er.github.io/pharm.github.io/searchDrug/index_Med"></iframe>
     </div>
-    <a href="#" class="toTop"> ↑ </a>
+    <!-- 常見問題 -->
     <div id="menuQA" class="page">
-        <a href='#' onclick="toggleQA(this)" class='qaBtn'>忘記吃藥怎麼辦&nbsp<i class="fa fa-plus-circle"></i></a>
-        <img class="qaImg" src="https://i.imgur.com/AUuglnr.jpeg">
-        <a href='#' onclick="toggleQA(this)" class='qaBtn'>服藥後身體不適怎麼辦&nbsp<i class="fa fa-plus-circle"></i></a>
-        <img class="qaImg" src="https://i.imgur.com/d2hu8i8.jpeg">
-        <a href='#' onclick="toggleQA(this)" class='qaBtn'>藥品換廠牌了怎麼辦&nbsp<i class="fa fa-plus-circle"></i></a>
-        <img class="qaImg" src="https://i.imgur.com/xB29e7C.jpeg">
-        <a href='#' onclick="toggleQA(this)" class='qaBtn'>藥品可以剝半/磨粉嗎&nbsp<i class="fa fa-plus-circle"></i></a>
-        <img class="qaImg" src="https://i.imgur.com/phLsiwv.jpeg">
-        <a href='#' onclick="toggleQA(this)" class='qaBtn'>吃藥一定要配胃藥嗎&nbsp<i class="fa fa-plus-circle"></i></a>
-        <img class="qaImg" src="https://i.imgur.com/nIluf7r.jpeg">
-        <a href='#' onclick="toggleQA(this)" class='qaBtn'>藥品保存方式&nbsp<i class="fa fa-plus-circle"></i></a>
-        <img class="qaImg" src="https://i.imgur.com/jzTPEWE.jpeg">
-        <a href='#' onclick="toggleQA(this)" class='qaBtn'>過期藥品處理方式&nbsp<i class="fa fa-plus-circle"></i></a>
-        <img class="qaImg" src="https://i.imgur.com/cVac1et.jpeg">
-        <a href='#' onclick="toggleQA(this)" class='qaBtn'>慢性處方箋注意事項&nbsp<i class="fa fa-plus-circle"></i></a>
-        <img class="qaImg" src="https://i.imgur.com/wvdnEWu.jpeg">
-        <a href='#' onclick="toggleQA(this)" class='qaBtn'>幼兒服藥注意事項&nbsp<i class="fa fa-plus-circle"></i></a>
-        <img class="qaImg" src="https://i.imgur.com/08YOb07.jpeg">
+        <a href="javascript:void(0)" class='qaBtn'>忘記吃藥怎麼辦&nbsp<i class="fa fa-plus-circle"></i></a>
+        <img class="qaImg" src="https://7110er.github.io/pharm.github.io/image/commonQA_img/1.jpg">
+        <a href="javascript:void(0)" class='qaBtn'>服藥後身體不適怎麼辦&nbsp<i class="fa fa-plus-circle"></i></a>
+        <img class="qaImg" src="https://7110er.github.io/pharm.github.io/image/commonQA_img/2.jpg">
+        <a href="javascript:void(0)" class='qaBtn'>藥品換廠牌了怎麼辦&nbsp<i class="fa fa-plus-circle"></i></a>
+        <img class="qaImg" src="https://7110er.github.io/pharm.github.io/image/commonQA_img/3.jpg">
+        <a href="javascript:void(0)" class='qaBtn'>藥品可以剝半/磨粉嗎&nbsp<i class="fa fa-plus-circle"></i></a>
+        <img class="qaImg" src="https://7110er.github.io/pharm.github.io/image/commonQA_img/4.jpg">
+        <a href="javascript:void(0)" class='qaBtn'>吃藥一定要配胃藥嗎&nbsp<i class="fa fa-plus-circle"></i></a>
+        <img class="qaImg" src="https://7110er.github.io/pharm.github.io/image/commonQA_img/5.jpg">
+        <a href="javascript:void(0)" class='qaBtn'>藥品保存方式&nbsp<i class="fa fa-plus-circle"></i></a>
+        <img class="qaImg" src="https://7110er.github.io/pharm.github.io/image/commonQA_img/6.jpg">
+        <a href="javascript:void(0)" class='qaBtn'>過期藥品處理方式&nbsp<i class="fa fa-plus-circle"></i></a>
+        <img class="qaImg" src="https://7110er.github.io/pharm.github.io/image/commonQA_img/7.jpg">
+        <a href="javascript:void(0)" class='qaBtn'>慢性處方箋注意事項&nbsp<i class="fa fa-plus-circle"></i></a>
+        <img class="qaImg" src="https://7110er.github.io/pharm.github.io/image/commonQA_img/8.jpg">
+        <a href="javascript:void(0)" class='qaBtn'>幼兒服藥注意事項&nbsp<i class="fa fa-plus-circle"></i></a>
+        <img class="qaImg" src="https://7110er.github.io/pharm.github.io/image/commonQA_img/9.jpg">
     </div>
+    <!-- 圖文內容會顯示的地方 -->
     <div id="result" class='page'>
     </div>
+    <!-- 回到最上層 -->
+    <a href="javascript:void(0)" class="toTop"> ↑ </a>
+
 </body>
 
 </html>

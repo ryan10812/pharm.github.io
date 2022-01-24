@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="高順鴻">
+    <title>藥品查詢</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- 連結jquery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- 連結Data table -->
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js">
+    </script>
+    <!-- Rwd js -->
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+
+    <!-- Rwd css -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+
+
+    <style>
+        body {
+            width: 100%;
+            padding: 0;
+        }
+
+        #dtable td,
+        #dtable th {
+            border: 1px solid #ddd;
+            padding: 5px;
+
+        }
+
+
+        .dataTables_wrapper .dataTables_filter {
+            float: none;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .closeBtn {
+            float: right;
+        }
+
+        #page2 div {
+            background-color: aliceblue !important;
+            border: 1px solid black;
+        }
+
+        #title th,
+        #page2 label {
+            color: #001541 !important;
+        }
+
+        #basic {
+            font-size: 13px;
+            text-align: center;
+        }
+
+        #dTable th {
+            background-color: rgb(247, 247, 247) !important;
+            border-bottom: 1px black solid;
+
+        }
+
+        #dTable td {
+            border-bottom: 1px black solid;
+        }
+
+        #dTable {
+            border: 1px solid black;
+        }
+        img   {
+            max-width: 100%;
+        } 
+        #toPage1 {
+            float: left;
+        } 
+
+
+        @media print {
+            @page {
+                size: A4 portrait !important;
+            }
+
+
+
+            .closeBtn,
+            #toPage1 {
+                display: none;
+            }
+
+            input {
+                border: none;
+            }
+
+
+
+        }
+    </style>
+    <!-- 程式碼開始 -->
+    <script>
+        var date = new Date().toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' })
+        $(document).ready(function () {
+            $('table').on('click', 'input[type="button"]', function (e) {
+                $(this).closest('tr').remove()
+            })
+            $('#toPage2').click(function () {
+                $('#page1').hide();
+                $('#page2').show();
+            })
+            $('#toPage1').click(function () {
+                $('#page1').show();
+                $('#page2').hide();
+
+            })
+            $('#basic input').blur(function () {
+                $(this).css({ 'border': 'none' })
+            })
+
+            document.getElementById("date").defaultValue = date;
+        })
+
+        google.script.run.withSuccessHandler(showData).getData();
+        function showData(dataArray) {
+            $(document).ready(function () {
+                $('#data-table').DataTable({
+                    scrollY: 300,
+                    scrollX: true,
+                    scrollCollapse: true,
+                    paging: false,
+                    "language": {
+                        // 表格翻譯成中文
+                        "processing": "處理中...",
+                        "loadingRecords": "載入中...",
+                        "lengthMenu": "顯示 _MENU_ 項結果",
+                        "zeroRecords": "沒有符合的結果",
+                        "info": "顯示第 _START_ 至 _END_ 項結果，共 _TOTAL_ 項",
+                        "infoEmpty": "顯示第 0 至 0 項結果，共 0 項",
+                        "infoFiltered": "(從 _MAX_ 項結果中過濾)",
+                        "search": "<i class='fa fa-search'></i>&nbsp;藥品關鍵字&nbsp;:&nbsp;",
+                        "paginate": {
+                            "first": "第一頁",
+                            "previous": "上一頁",
+                            "next": "下一頁",
+                            "last": "最後一頁"
+                        },
+                        "aria": {
+                            "sortAscending": ": 升冪排列",
+                            "sortDescending": ": 降冪排列"
+                        },
+                        "emptyTable": "目前沒有資料",
+                        "datetime": {
+                            "previous": "上一頁",
+                            "next": "下一頁",
+                            "hours": "時",
+                            "minutes": "分",
+                            "seconds": "秒",
+                            "amPm": [
+                                "上午",
+                                "下午"
+                            ]
+                        },
+                        "searchBuilder": {
+                            "add": "新增條件",
+                            "condition": "條件",
+                            "deleteTitle": "刪除過濾條件",
+                            "button": {
+                                "_": "複合查詢 (%d)",
+                                "0": "複合查詢"
+                            },
+                            "clearAll": "清空",
+                            "conditions": {
+                                "array": {
+                                    "contains": "含有",
+                                    "empty": "為空",
+                                    "equals": "等於",
+                                    "not": "不為",
+                                    "notEmpty": "不為空"
+                                },
+                                "date": {
+                                    "after": "大於",
+                                    "before": "小於",
+                                    "between": "在其中",
+                                    "empty": "為空",
+                                    "equals": "等於",
+                                    "not": "不為",
+                                    "notBetween": "不在其中",
+                                    "notEmpty": "不為空"
+                                },
+                                "number": {
+                                    "between": "在其中",
+                                    "empty": "為空",
+                                    "equals": "等於",
+                                    "gt": "大於",
+                                    "gte": "大於等於",
+                                    "lt": "小於",
+                                    "lte": "小於等於",
+                                    "not": "不為",
+                                    "notBetween": "不在其中",
+                                    "notEmpty": "不為空"
+                                },
+                                "string": {
+                                    "contains": "含有",
+                                    "empty": "為空",
+                                    "endsWith": "字尾為",
+                                    "equals": "等於",
+                                    "not": "不為",
+                                    "notEmpty": "不為空",
+                                    "startsWith": "字首為"
+                                }
+                            },
+                            "data": "欄位",
+                            "leftTitle": "群組條件",
+                            "logicAnd": "且",
+                            "logicOr": "或",
+                            "rightTitle": "取消群組",
+                            "title": {
+                                "_": "複合查詢 (%d)",
+                                "0": "複合查詢"
+                            },
+                            "value": "內容"
+                        },
+                        "editor": {
+                            "close": "關閉",
+                            "create": {
+                                "button": "新增",
+                                "title": "建立新項目",
+                                "submit": "建立"
+                            },
+                            "edit": {
+                                "button": "編輯",
+                                "title": "編輯項目",
+                                "submit": "更新"
+                            },
+                            "remove": {
+                                "button": "刪除",
+                                "title": "刪除",
+                                "submit": "刪除",
+                                "confirm": {
+                                    "_": "您確定要刪除 %d 筆資料嗎？",
+                                    "1": "您確定要刪除 %d 筆資料嗎？"
+                                }
+                            },
+                            "multi": {
+                                "restore": "回復修改",
+                                "title": "每行有不同的價值",
+                                "info": "您選擇了多個項目，每項目都有不同的價值。如果您想所有選擇的項目都用同一個價值，可以在這裏輸入一個價值。要不然它們會保留原本各自的價值",
+                                "noMulti": "此列不容許同時編輯多個項目"
+                            },
+                            "error": {
+                                "system": "系統發生錯誤(更多資訊)"
+                            }
+                        },
+                        "autoFill": {
+                            "cancel": "取消"
+                        },
+                        "buttons": {
+                            "copySuccess": {
+                                "_": "複製了 %d 筆資料",
+                                "1": "複製了 1 筆資料"
+                            },
+                            "copyTitle": "已經複製到剪貼簿",
+                            "excel": "Excel",
+                            "pdf": "PDF",
+                            "print": "列印",
+                            "copy": "複製"
+                        },
+                        "searchPanes": {
+                            "collapse": {
+                                "_": "搜尋面版 (%d)",
+                                "0": "搜尋面版"
+                            },
+                            "emptyPanes": "沒搜尋面版",
+                            "loadMessage": "載入搜尋面版中...",
+                            "clearMessage": "清空"
+                        },
+                        "select": {
+                            "rows": {
+                                "_": "%d 列已選擇",
+                                "1": "%d 列已選擇"
+                            }
+                        }
+                    },
+                    data: dataArray,
+                    fixedColumns: {
+                        left: 1
+                    },
+                    columns: [
+                        { "title": "詳閱" },
+                        { "title": "中文名" },
+                        { "title": "英文名" },
+                        { "title": "主成分" },
+                        { "title": "處置代碼" },
+                    ],
+                });
+            });
+        }
+        //  避免表單有空白的錯誤
+        function preventFormSubmit() {
+            var forms = document.querySelectorAll('form');
+            for (var i = 0; i < forms.length; i++) {
+                forms[i].addEventListener('submit', function (event) {
+                    event.preventDefault();
+                });
+            }
+
+        }
+        window.addEventListener("load", preventFormSubmit, true);
+        // 顯示表格內容
+        function searchGoogleSheet(e) { // 查詢按鈕
+            var searchText = $(e).parent().next().next().next().next().text();
+            google.script.run.withSuccessHandler(createContent).search(searchText);
+            var x = document.getElementById("text")
+            x.innerHTML += "<p>" + $(e).parent().next().text() + "&nbsp;" + "&nbsp;" + $(e).parent().next().next().text() + "</p>"
+        }
+        function createContent(dataArray) {
+            var table = document.getElementById("dTable");
+            var row = table.insertRow(1);
+            if (dataArray !== undefined && dataArray.length != 0) {
+                for (var i = 0; i < dataArray.length; i++) {
+                    if (i === 0) {
+                        row.insertCell().innerHTML = "<img src='https://7110er.github.io/pharm.github.io/searchDrug/picture/" + dataArray[i] + ".jpg'>";
+                    } else if (i === 2) {
+                        var x = row.insertCell();
+                        x.innerHTML = dataArray[i];
+                        x.setAttribute('contenteditable', true);
+                    }
+                    else {
+                        row.insertCell().innerHTML = dataArray[i]
+                    }
+                }
+            }
+
+            row.insertCell().innerHTML = "<input type='text' size='4'>"
+            row.insertCell().innerHTML = "<form onsubmit=dose(this)>" + "<input type='text'>" + "</form>" + "<input type='button' class='closeBtn'value='&times;' size='2'>" + "<p>" + "</p>"
+
+        }
+        function dose(e) {
+            event.preventDefault();
+
+            var searchText = $(e).children().val();
+            google.script.run.withSuccessHandler(createDose).searchDose(searchText)
+            function createDose(dataArray) {
+                $(e).next().next().html(dataArray);
+                $(e).next().next().attr('contenteditable', true);
+                $(e).remove();
+            }
+        }
+
+        // 判斷string 是否為網址
+        function isURL(string) {
+            let url;
+            try {
+                url = new URL(string);
+            } catch (_) {
+                return false;
+            }
+            return url.protocol === "http:" || url.protocol === "https:";
+        }
+
+    </script>
+</head>
+
+<body>
+    <div id="page1">
+        <br>
+        <table id="data-table" class="display compact table-hover table-striped  ">
+        </table>
+        <br>
+        <div>
+            <button id="toPage2">結果</button>
+        </div>
+        <br>
+        <div id="text"></div>
+    </div>
+    <div id="page2" style="display: none;">
+        <div style="padding: 15px;">
+            <table id="title" style="width: 100%;">
+                <thead>
+                    <tr style="font-size: 20px;">
+                        <th style="text-align: center;"><button id="toPage1"><i class="bi bi-box-arrow-left"></i></button>衛生福利部桃園醫院</th>
+                        <th style="text-align: center;">處方藥物清單</th>
+                        <th style="text-align: right; font-size: 10px;"><label for="date">日期 :&nbsp;</label><input
+                                id="date" type="text" style=" border: none;" size="12">
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+            <form id="basic" style="padding: 10px;">
+                <label for="hisName">姓名 :&nbsp;</label><input id="hisName" type="text" size='12' placeholder="姓名">
+                <label for="id">病歷號 :&nbsp;</label><input id="id" type="text" size='12' placeholder="病歷號">
+                <label for="age">科別 :&nbsp;</label><input id="age" type="text" size='12' placeholder="科別">
+                <label for="doctor">處方醫師 :&nbsp;</label><input id="doctor" type="text" size='12' placeholder="處方醫師">
+
+            </form>
+        </div>
+        <table id="dTable" class='table table-sm table-striped'>
+
+            <tr>
+                <th style="width: 20%;">圖片</th>
+                <th style="width: 15%;">藥名</th>
+                <th>適應症</th>
+                <th style="width: 10%;">用量</th>
+                <th style="width: 15%;">用法</th>
+
+            </tr>
+
+        </table>
+    </div>
+
+
+</body>
+
+</html>

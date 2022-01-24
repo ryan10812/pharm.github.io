@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="高順鴻">
+    <title>表單</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+    <style>
+        body {
+            font-size: 12px;
+            margin: 0;
+            padding: 1%;
+        }
+
+        #searchData td {
+            border: 1px solid #ddd;
+        }
+
+        .bar {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            color: rgb(29, 51, 87);
+            padding: 10px;
+            width: 50%;
+            background-color: #c4d6ee;
+            float: left;
+            border-radius: 5px;
+        }
+
+        .btn,
+        .btn2,
+        .reset {
+            font-size: 15px;
+            font-weight: bold;
+            text-align: center;
+            color: rgb(29, 51, 87);
+            padding: 10px;
+            margin: 0px 5px;
+            background-color: #e0edff;
+            border-radius: 10px;
+            border-style: solid;
+            border-width: 1px;
+            border-color: rgb(1, 26, 93);
+            float: left;
+
+        }
+
+        .btn:hover,
+        .active {
+            background-color: #eee;
+            color: black;
+        }
+
+
+        .option {
+            padding: 5px;
+        }
+
+        .radioTd1,
+        .radioTd2 {
+            width: 20%;
+        }
+
+        .quizTd1 {
+            color: rgb(29, 51, 87);
+            font-weight: bolder;
+            background-color: aliceblue;
+            padding: 10px 0;
+        }
+
+        .quizTd2 {
+            width: 70%;
+        }
+
+        form {
+            width: 100%;
+        }
+
+        .ICOPE_title {
+            font-weight: bolder;
+            color: blue;
+        }
+
+        #checkbox,
+        #form_quiz,
+        #form_ICOPE,
+        #form_cooperate {
+            display: none;
+        }
+
+
+
+        .dataResult {
+            width: 100%;
+            float: left;
+            display: none;
+            margin: 0px;
+            padding: 0px;
+            list-style-type: none;
+        }
+
+        dl {
+            display: inline-block;
+        }
+
+        .result {
+            display: inline;
+        }
+
+        #forRemove_quiz table,
+        .table>thead>tr>td,
+        .table>tbody>tr>td {
+            padding: 2px;
+            vertical-align: inherit;
+            font-size: 15px;
+        }
+
+        .table>tbody>tr>td {
+            text-align: center;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f8f8;
+        }
+
+        .rowspan {
+            background-color: #f2f8ff;
+            color: #012061;
+            font-weight: bold;
+            font-size: 14px;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            $('.bar').click(function () {
+                var check = $(this).hasClass('active');
+                if (!check) {
+                    $(this).toggleClass('active');
+                    $('div .bar').not(this).removeClass('active');
+                    $('.page').toggle();
+                }
+            });
+            $('.btn2').click(function () {
+                var check = $(this).hasClass('active');
+                var then = $(this).parent().siblings(".dataResult");
+                if (!check) {
+                    $(this).toggleClass('active');
+                    $('.result button').not(this).removeClass('active');
+                    $(then).toggle();
+                    $(".dataResult:visible").not(then).hide();
+                }
+            });
+            $('.reset').click(function () {
+                $(this).parent().trigger("reset");
+                $('#sum').html('');
+            })
+            ICOPE();
+            cooperate();
+            quiz();
+        });
+        // 避免表單空白
+        function preventFormSubmit() {
+            var forms = document.querySelectorAll('form');
+            for (var i = 0; i < forms.length; i++) {
+                forms[i].addEventListener('submit', function (event) {
+                    event.preventDefault();
+                });
+            }
+        }
+        window.addEventListener("load", preventFormSubmit, true);
+        function cooperate() {
+            google.script.run.withSuccessHandler(get_cooperate).search_cooperate();
+            function get_cooperate(dataArray) {
+                if (dataArray !== undefined && dataArray.length != 0) {
+                    var dataResult = "<table class='table table-sm table-striped' style='border-collapse: separate';  >" +
+                        "<thead >"
+                    for (var i = 0; i < dataArray.length; i++) {
+                        for (var j = 0; j < dataArray[i].length; j++) {
+                            dataResult += "<tr>" + "<td >" + dataArray[i][j] + "</td>" + "<td class='radioTd1'>" +
+                                "<label class='option'>" + "1" + "<input type='radio'  value='1' name='radio" + [j] + "'>" + "</label>" +
+                                "<label class='option'>" + "2" + "<input type='radio'  value='2' name='radio" + [j] + "'>" + "</label>" +
+                                "<label class='option'>" + "3" + "<input type='radio'  value='3' name='radio" + [j] + "'>" + "</label>" +
+                                "<label class='option'>" + "4" + "<input type='radio'  value='4' name='radio" + [j] + "'>" + "</label>" +
+                                "</td>" + "</tr>";
+                        }
+                    }
+                    dataResult +=
+                        "</thead>" +
+                        "</table>";
+                    var div = document.getElementById('result_cooperate');
+                    div.innerHTML = dataResult + div.innerHTML;
+                }
+            }
+
+        }
+        function quiz() {
+            google.script.run.withSuccessHandler(get_quiz).search_quiz();
+            function get_quiz(dataArray) {
+                if (dataArray !== undefined && dataArray.length != 0) {
+                    var dataResult = "<div>"
+                    for (var i = 0; i < dataArray.length; i++) {
+
+                        dataResult += "<table style='display:none'>"
+                        for (var j = 0; j < dataArray[i].length; j++) {
+                            if (j === 0) {
+                                dataResult += "<tr class='" + dataArray[i][j] + "' sty>" + "<td colspan='2' class='quizTd1'>" + dataArray[i][j] + "</td>" + "</tr>"
+                            } else {
+                                dataResult += "<tr >" + "<td class='quizTd2'>" + dataArray[i][j] + "</td>" + "<td class='radioTd2'>" +
+                                    "<label class='option'>" + "是" + "<input class='radioInput' type='radio'  value='是' name='radio" + [i] + [j] + "'>" + "</label>" +
+                                    "<label class='option'>" + "否" + "<input class='radioInput'  type='radio' value='否' name='radio" + [i] + [j] + "'>" + "</label>" +
+                                    "<label class='option'>" + "沒資料" + "<input class='radioInput'  type='radio' value='沒資料' checked name='radio" + [i] + [j] + "'>" + "</label>" +
+
+                                    "</td>" + "</tr>";
+                            }
+                        }
+                        dataResult += "</table>";
+                    }
+                    dataResult += "</div>"
+                    var div = document.getElementById('forRemove_quiz');
+                    div.innerHTML += dataResult;
+                }
+            }
+        }
+        function ICOPE() {
+            google.script.run.withSuccessHandler(get_ICOPE).search_ICOPE();
+            function get_ICOPE(dataArray) {
+                if (dataArray !== undefined && dataArray.length != 0) {
+                    var dataResult = "<table class='table table-sm table-striped' style='border-collapse: separate';  >" +
+                        "<thead >"
+                    for (var i = 0; i < dataArray.length; i++) {
+                        for (var j = 0; j < 13; j++) {
+                            dataResult += "<tr>" + "<td class='ICOPE_text'>" + dataArray[i][j] + "</td>" + "<td class='radioTd3'>" +
+                                "<label class='option'>" + "是" + "<input class='radioInput' type='radio'  value='是' name='radio" + [j] + "'>" + "</label>" +
+                                "<label class='option'>" + "否" + "<input class='radioInput'  type='radio' value='否' name='radio" + [j] + "'>" + "</label>" +
+                                "</td>" + "</tr>"
+                        }
+                        for (var j = 13; j < 14; j++) {
+                            dataResult += "<tr>" + "<td class='ICOPE_text'>" + dataArray[i][j] + "</td>" + "<td class='radioTd3'>" +
+                                "<input class='radioText' type='text'   name='radio" + [j] + "'>" +
+                                "</td>" + "</tr>"
+                        }
+                        for (var j = 14; j < 15; j++) {
+                            dataResult += "<tr>" + "<td class='ICOPE_text'>" + dataArray[i][j] + "</td>" + "<td class='radioTd3'>" +
+                                "<label class='option'>" + "小學" + "<input class='radioInput' type='radio'  value='小學' name='radio" + [j] + "'>" + "</label>" +
+                                "<label class='option'>" + "國中" + "<input class='radioInput'  type='radio' value='國中' name='radio" + [j] + "'>" + "</label>" +
+                                "<label class='option'>" + "高中" + "<input class='radioInput'  type='radio' value='高中' name='radio" + [j] + "'>" + "</label>" +
+                                "<label class='option'>" + "大學以上" + "<input class='radioInput'  type='radio' value='大學以上' name='radio" + [j] + "'>" + "</label>" +
+                                "</td>" + "</tr>"
+                        }
+                        for (var j = 15; j < 18; j++) {
+                            dataResult += "<tr>" + "<td class='ICOPE_text'>" + dataArray[i][j] + "</td>" + "<td class='radioTd3'>" +
+                                "<label class='option'>" + "是" + "<input class='radioInput' type='radio'  value='是' name='radio" + [j] + "'>" + "</label>" +
+                                "<label class='option'>" + "否" + "<input class='radioInput'  type='radio' value='否' name='radio" + [j] + "'>" + "</label>" +
+                                "</td>" + "</tr>"
+                        }
+
+                    }
+                    dataResult += "</thead>" + "</table>";
+                    var div = document.getElementById('result_ICOPE');
+                    div.innerHTML = dataResult + div.innerHTML;
+                }
+            }
+
+        }
+        function getSum() {
+            dataLength = document.querySelectorAll(".radioTd1").length;
+            var formResult = [];
+            let sum = 0;
+            for (var i = 0; i < dataLength; i++) {
+                formResult[i] = document.querySelector("#form_cooperate input[name='radio" + [i] + "']" + ":checked").value;
+                sum += +(formResult[i])
+            };
+            document.getElementById('sum').innerHTML = '總分 : ' + sum + ' 分';
+        }
+        function displayQuiz(e) {
+            var x = document.querySelectorAll("tr" + "." + e.value)
+            if ($(e).is(':checked')) {
+
+                $(x).closest('table').show()
+                $(x).siblings('tr').children('.quizTd2').addClass('qwe')
+                $(x).siblings('tr').children('.radioTd2').children('.option').children('.radioInput').addClass('asd')
+
+            } else {
+                $(x).closest('table').hide()
+                $(x).siblings('tr').children('.quizTd2').removeClass('qwe')
+                $(x).siblings('tr').children('.radioTd2').children('.option').children('.radioInput').removeClass('asd')
+
+            }
+        }
+
+        function submitForm_symptom() {
+            var array = []
+            var checkboxes = document.querySelectorAll('#form_symptom input[type=checkbox]:checked')
+            for (var i = 0; i < checkboxes.length; i++) {
+                array.push(checkboxes[i].value)
+            }
+            var id = document.getElementById('id');
+            var hisName = document.getElementById('hisName');
+            var age = document.getElementById('age');
+            var comment = document.getElementById('comment');
+            var rowData = {
+                id: id.value,
+                name: hisName.value,
+                age: age.value,
+                comment: comment.value,
+                dataResult: array
+            }
+            google.script.run.addData_symptom(rowData);
+            document.getElementById('form_symptom').reset();
+            alert('表單已送出')
+        }
+        function submitForm_quiz() {
+            var id = document.getElementById('id');
+            var hisName = document.getElementById('hisName');
+            var age = document.getElementById('age');
+            var comment = document.getElementById('comment');
+            var x = document.querySelectorAll('.qwe');
+
+            var z = [];
+            for (var i = 0; i < x.length; i++) {
+                z.push(x[i].textContent);
+            }
+            var y = [];
+            $("input[class='radioInput asd']:checked").each(function () {
+                y.push($(this).val());
+            })
+            var w = [];
+            w.push($("input[name='quizBtn']:checked").val())
+            for (var i = 0; i < y.length; i++) {
+                w.push(z[i]);
+                w.push(y[i]);
+            }
+            var rowData = {
+                id: id.value,
+                name: hisName.value,
+                age: age.value,
+                comment: comment.value,
+                dataResult: w,
+            }
+            google.script.run.addData_quiz(rowData);
+            $(' #form_quiz').trigger('reset');
+            alert('表單已送出');
+
+        }
+        function submitForm_ICOPE() {
+            var id = document.getElementById('id');
+            var hisName = document.getElementById('hisName');
+            var age = document.getElementById('age');
+            var comment = document.getElementById('comment');
+            var formResult = [];
+            dataLength = document.querySelectorAll(".radioTd3").length;
+            for (var i = 0; i < 18; i++) {
+                if (i === 13) {
+                    if ($(".radioText").val() != "") {
+                        formResult[i] = $(".radioText").val();
+                    }
+                    else {
+                        formResult[i] = '沒資料';
+                    }
+                }
+                else if ($("#form_ICOPE input[name='radio" + [i] + "']").is(':checked')) {
+                    formResult[i] = document.querySelector("#result_ICOPE input[name='radio" + [i] + "']" + ":checked").value;
+                }
+                else {
+                    formResult[i] = '沒資料';
+                }
+            };
+            var rowData = {
+                id: id.value,
+                name: hisName.value,
+                age: age.value,
+                comment: comment.value,
+                dataResult: formResult
+            }
+
+            google.script.run.addData_ICOPE(rowData);
+            document.getElementById('form_ICOPE').reset();
+            alert('表單已送出')
+
+        }
+        function submitForm_cooperate() {
+            var id = document.getElementById('id');
+            var hisName = document.getElementById('hisName');
+            var age = document.getElementById('age');
+            var comment = document.getElementById('comment');
+            dataLength = document.querySelectorAll(".radioTd1").length;
+            var formResult = [];
+            for (var i = 0; i < dataLength; i++) {
+                if ($("#form_cooperate input[name='radio" + [i] + "']").is(':checked')) {
+                    formResult[i] = document.querySelector("#form_cooperate input[name='radio" + [i] + "']" + ":checked").value;
+                } else {
+                    formResult[i] = '沒資料';
+                }
+            };
+            formResult.push($("input[name='cooperateBtn']:checked").val())
+            var rowData = {
+                id: id.value,
+                name: hisName.value,
+                age: age.value,
+                comment: comment.value,
+                dataResult: formResult
+            }
+            google.script.run.addData_cooperate(rowData);
+            document.getElementById('form_cooperate').reset();
+            alert('表單已送出')
+
+        }
+        //查詢病人資料
+        function searchData() {
+            var x = document.getElementById('searchId').value;
+            google.script.run.withSuccessHandler(createData_ICOPE).searchData_ICOPE(x);
+            google.script.run.withSuccessHandler(createData_cooperate).searchData_cooperate(x);
+            google.script.run.withSuccessHandler(createData_symptom).searchData_symptom(x);
+            google.script.run.withSuccessHandler(createData_quiz).searchData_quiz(x);
+        }
+        function createData_cooperate(dataArray) {
+            if (dataArray !== undefined && dataArray.length != 0) {
+                var dataResult = "<table class='table table-sm table-striped' style='border-collapse: separate ; width:auto' ; >" +
+                    "<thead >"
+                for (var i = 1; i < dataArray.length; i++) {
+                    dataResult += "<tr>" + "<td id='td_cooperate_" + i + "' class='td'>" + "</td>"
+                    for (var j = 0; j < dataArray[i].length; j++) {
+                        dataResult += "<td>" + dataArray[i][j] + "</td>"
+                    }
+                    dataResult += "</tr>"
+                }
+                dataResult +=
+                    "</thead>" +
+                    "</table>";
+                document.getElementById('dataResult_cooperate').innerHTML = dataResult;
+                for (var i = 0; i < 1; i++) {
+                    for (var j = 0; j < dataArray[i].length; j++) {
+                        var k = j + 1
+                        if (dataArray[i][j] != undefined && dataArray[i][j] != "") {
+                            document.getElementById("td_cooperate_" + k).innerHTML = dataArray[i][j];
+                        }
+                        else {
+                            document.getElementById("td_cooperate_" + k).classList.remove('td');
+                        }
+                    }
+                }
+            }
+        }
+        function createData_ICOPE(dataArray) {
+            if (dataArray !== undefined && dataArray.length != 0) {
+                var dataResult = "<table class='table table-sm table-striped' style='border-collapse: separate; width:auto'; >" +
+                    "<thead >"
+                for (var i = 1; i < dataArray.length; i++) {
+                    dataResult += "<tr>" + "<td id='td_ICOPE_" + i + "' class='td'>" + "</td>"
+                    for (var j = 0; j < dataArray[i].length; j++) {
+                        dataResult += "<td>" + dataArray[i][j] + "</td>"
+                    }
+                    dataResult += "</tr>"
+                }
+                dataResult +=
+                    "</thead>" +
+                    "</table>";
+                document.getElementById('dataResult_ICOPE').innerHTML = dataResult;
+                for (var i = 0; i < 1; i++) {
+                    for (var j = 0; j < dataArray[i].length; j++) {
+                        var k = j + 1
+                        if (dataArray[i][j] != undefined && dataArray[i][j] != "") {
+                            document.getElementById("td_ICOPE_" + k).innerHTML = dataArray[i][j];
+                        }
+                        else {
+                            document.getElementById("td_ICOPE_" + k).classList.remove('td');
+                        }
+                    }
+                }
+            }
+        }
+        function createData_quiz(dataArray) {
+            if (dataArray !== undefined && dataArray.length != 0) {
+                var dataResult = "<table class='table table-sm table-striped' style='border-collapse: separate; width:auto'; >" +
+                    "<thead >"
+                for (var i = 1; i < dataArray.length; i++) {
+                    dataResult += "<tr>" + "<td id='td_quiz_" + i + "' class='td'>" + "</td>"
+                    for (var j = 0; j < dataArray[i].length; j++) {
+                        dataResult += "<td>" + dataArray[i][j] + "</td>"
+                    }
+                    dataResult += "</tr>"
+                }
+                dataResult +=
+                    "</thead>" +
+                    "</table>";
+                document.getElementById('dataResult_quiz').innerHTML = dataResult;
+                for (var i = 0; i < 1; i++) {
+                    for (var j = 0; j < dataArray[i].length; j++) {
+                        var k = j + 1
+                        if (dataArray[i][j] != undefined && dataArray[i][j] != "") {
+                            document.getElementById("td_quiz_" + k).innerHTML = dataArray[i][j];
+                        }
+                        else {
+                            document.getElementById("td_quiz_" + k).classList.remove('td');
+                        }
+                    }
+                }
+            }
+        }
+        function createData_symptom(dataArray) {
+            if (dataArray !== undefined && dataArray.length != 0) {
+                var dataResult = "<table class='table table-sm table-striped' style='border-collapse: separate; width:auto'; >" +
+                    "<thead >"
+                for (var i = 1; i < dataArray.length; i++) {
+                    dataResult += "<tr>" + "<td id='td_symptom_" + i + "' class='td'>" + "</td>"
+                    for (var j = 0; j < dataArray[i].length; j++) {
+                        dataResult += "<td>" + dataArray[i][j] + "</td>"
+                    }
+                    dataResult += "</tr>"
+                }
+                dataResult +=
+                    "</thead>" +
+                    "</table>";
+                document.getElementById('dataResult_symptom').innerHTML = dataResult;
+                for (var i = 0; i < 1; i++) {
+                    for (var j = 0; j < dataArray[i].length; j++) {
+                        var k = j + 1
+                        if (dataArray[i][j] != undefined && dataArray[i][j] != "") {
+                            document.getElementById("td_symptom_" + k).innerHTML = dataArray[i][j];
+                        }
+                        else {
+                            document.getElementById("td_symptom_" + k).classList.remove('td');
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div>
+        <button class="bar active">建檔</button>
+        <button class="bar ">查詢</button>
+    </div>
+    <br>
+    <div id="createData" style="margin-top: 50px; display: block;" class="page">
+        <form id="basic">
+            <label for="id">病歷號 :&nbsp;</label><input id="id" type="number" style="width: auto;" placeholder="輸入病歷號"
+                onfocus="this.value=''" required>
+            <label for="hisName">姓名 :&nbsp;</label><input id="hisName" type="text" style="width: 20%;"
+                placeholder="ex:王*明" onfocus="this.value=''">
+            <label for="age">年齡 :&nbsp;</label><input id="age" type="number" style="width: 15%;" placeholder="年齡"
+                onfocus="this.value=''">
+            <label for="comment">備註欄 :&nbsp;</label><input id="comment" type="text" style="width: 15%;"
+                onfocus="this.value=''">
+        </form>
+        <br>
+        <div class="result">
+            <dl>
+                <button class='btn2 active' type="button">症狀回報</button>
+            </dl>
+            <form id="form_symptom" class="dataResult" style="display: block;">
+                <table class="table table-bordered table-hover table-condensed">
+                    <tr>
+                        <td class='rowspan' rowspan="6">一般系統</td>
+                        <td><input type="checkbox" value="口乾"></td>
+                        <td>口乾</td>
+                        <td class='rowspan' rowspan="5">生殖系統</td>
+                        <td><input type="checkbox" value="經痛/月經異常/不正常出血"></td>
+                        <td>經痛/月經異常/不正常出血</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="體重最近改變很大"></td>
+                        <td>體重最近改變很大</td>
+
+                        <td><input type="checkbox" value="不正常分泌增加/陰道搔癢"></td>
+                        <td>不正常分泌增加/陰道搔癢</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="身體到處疼痛"></td>
+                        <td>身體到處疼痛</td>
+
+                        <td><input type="checkbox" value="性功能障礙"></td>
+                        <td>性功能障礙</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="頭痛"></td>
+                        <td>頭痛</td>
+
+                        <td><input type="checkbox" value="性慾減低"></td>
+                        <td>性慾減低</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="頭暈/昏眩"></td>
+                        <td>頭暈/昏眩</td>
+
+                        <td><input type="checkbox" value="腰背痛"></td>
+                        <td>腰背痛</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="入睡困難/睡不飽"></td>
+                        <td>入睡困難/睡不飽</td>
+                        <td class='rowspan' rowspan="5">腎臟/泌尿</td>
+                        <td><input type="checkbox" value="夜間頻尿"></td>
+                        <td>夜間頻尿</td>
+                    </tr>
+                    <tr>
+                        <td class='rowspan' rowspan="6">眼耳鼻喉</td>
+                        <td><input type="checkbox" value="視力改變"></td>
+                        <td>視力改變</td>
+
+                        <td><input type="checkbox" value="排尿困難"></td>
+                        <td>排尿困難</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="聽力有問題"></td>
+                        <td>聽力有問題</td>
+
+                        <td><input type="checkbox" value="排尿泡沫多"></td>
+                        <td>排尿泡沫多</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="經常性耳鳴"></td>
+                        <td>經常性耳鳴</td>
+
+                        <td><input type="checkbox" value="血尿"></td>
+                        <td>血尿</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="流鼻血"></td>
+                        <td>流鼻血</td>
+
+                        <td><input type="checkbox" value="腎臟功能不好"></td>
+                        <td>腎臟功能不好</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="過敏性鼻炎"></td>
+                        <td>過敏性鼻炎</td>
+                        <td class='rowspan' rowspan="3">造血系統</td>
+                        <td><input type="checkbox" value="皮膚碰撞容易瘀青"></td>
+                        <td>皮膚碰撞容易瘀青</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="青光眼"></td>
+                        <td>青光眼</td>
+
+                        <td><input type="checkbox" value="黑糞便，排便帶血"></td>
+                        <td>黑糞便，排便帶血</td>
+                    </tr>
+                    <tr>
+                        <td class='rowspan' rowspan="6">心血管</td>
+                        <td><input type="checkbox" value="常感胸悶及胸口疼痛"></td>
+                        <td>常感胸悶及胸口疼痛</td>
+
+                        <td><input type="checkbox" value="牙齦時常出血"></td>
+                        <td>牙齦時常出血</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="突發性非貧血性暈眩"></td>
+                        <td>突發性非貧血性暈眩</td>
+                        <td class='rowspan' rowspan="5">骨骼肌/關節</td>
+                        <td><input type="checkbox" value="關節腫脹/變形"></td>
+                        <td>關節腫脹/變形</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="心跳過快、心慌慌的"></td>
+                        <td>心跳過快、心慌慌的</td>
+
+                        <td><input type="checkbox" value="關節炎/疼痛(骨/類風濕性)"></td>
+                        <td>關節炎/疼痛(骨/類風濕性)</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="末梢冰冷、泛白"></td>
+                        <td>末梢冰冷、泛白</td>
+
+                        <td><input type="checkbox" value="肌肉疼痛/ 肌無力"></td>
+                        <td>肌肉疼痛/ 肌無力</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="肢體出現麻木無力感"></td>
+                        <td>肢體出現麻木無力感</td>
+
+                        <td><input type="checkbox" value="肌腱炎"></td>
+                        <td>肌腱炎</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="從坐突然站起會頭暈"></td>
+                        <td>從坐突然站起會頭暈</td>
+
+                        <td><input type="checkbox" value="腳/腿一觸就痛或有潰瘍"></td>
+                        <td>腳/腿一觸就痛或有潰瘍</td>
+                    </tr>
+                    <tr>
+                        <td class='rowspan' rowspan="4">肺臟</td>
+                        <td><input type="checkbox" value="喘鳴聲/胸緊悶"></td>
+                        <td>喘鳴聲/胸緊悶</td>
+                        <td class='rowspan' rowspan="10">神經精神方面</td>
+                        <td><input type="checkbox" value="麻木/ 四肢末端麻木"></td>
+                        <td>麻木/ 四肢末端麻木</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="呼吸窘迫/呼吸急促"></td>
+                        <td>呼吸窘迫/呼吸急促</td>
+
+                        <td><input type="checkbox" value="手部顫抖"></td>
+                        <td>手部顫抖</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="痰多/咳嗽"></td>
+                        <td>痰多/咳嗽</td>
+
+                        <td><input type="checkbox" value="走路平衡感喪失"></td>
+                        <td>走路平衡感喪失</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="咳血"></td>
+                        <td>咳血</td>
+
+                        <td><input type="checkbox" value="沮喪/憂鬱"></td>
+                        <td>沮喪/憂鬱</td>
+                    </tr>
+                    <tr>
+                        <td class='rowspan' rowspan="6">胃腸道</td>
+                        <td><input type="checkbox" value="食慾改變/味覺改變"></td>
+                        <td>食慾改變/味覺改變</td>
+
+                        <td><input type="checkbox" value="有自殺想法"></td>
+                        <td>有自殺想法</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="胃脹/胃痛/消化不良"></td>
+                        <td>胃脹/胃痛/消化不良</td>
+
+                        <td><input type="checkbox" value="緊張/焦慮/神經質"></td>
+                        <td>緊張/焦慮/神經質</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="腹痛/絞痛"></td>
+                        <td>腹痛/絞痛</td>
+
+                        <td><input type="checkbox" value="注意力無法集中"></td>
+                        <td>注意力無法集中</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="噁心/嘔吐"></td>
+                        <td>噁心/嘔吐</td>
+
+                        <td><input type="checkbox" value="易激怒/情緒不稳定"></td>
+                        <td>易激怒/情緒不稳定</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="下痢/血便"></td>
+                        <td>下痢/血便</td>
+
+                        <td><input type="checkbox" value="情感冷漠、動作異常"></td>
+                        <td>情感冷漠、動作異常</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="便秘/排便習慣異常"></td>
+                        <td>便秘/排便習慣異常</td>
+
+                        <td><input type="checkbox" value="失憶/記憶力減退"></td>
+                        <td>失憶/記憶力減退</td>
+                    </tr>
+                    <tr>
+                        <td class='rowspan' rowspan="3">皮膚</td>
+                        <td><input type="checkbox" value="乾癬"></td>
+                        <td>乾癬</td>
+                        <td class='rowspan' rowspan="5">感染性疾病</td>
+                        <td><input type="checkbox" value="喉嚨痛"></td>
+                        <td>喉嚨痛</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="搔癢/濕疹"></td>
+                        <td>搔癢/濕疹</td>
+
+                        <td><input type="checkbox" value="感覺發燒"></td>
+                        <td>感覺發燒</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="發疹"></td>
+                        <td>發疹</td>
+
+                        <td><input type="checkbox" value="發炎/紅腫感染:部位                "></td>
+                        <td>發炎/紅腫感染:部位                </td>
+                    </tr>
+                    <tr>
+                        <td class='rowspan' rowspan="3">內分泌系統</td>
+                        <td><input type="checkbox" value="乳房腫塊"></td>
+                        <td>乳房腫塊</td>
+
+                        <td><input type="checkbox" value="躁動不安、精神變差"></td>
+                        <td>躁動不安、精神變差</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="甲狀腺機能過高/過低"></td>
+                        <td>甲狀腺機能過高/過低</td>
+
+                        <td><input type="checkbox" value="嚴重頭痛、抽搐、頸部僵硬"></td>
+                        <td>嚴重頭痛、抽搐、頸部僵硬</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" value="更年期症候/潮紅"></td>
+                        <td>更年期症候/潮紅</td>
+                        <td class='rowspan' rowspan="4">營養/體液/電解質</td>
+                        <td><input type="checkbox" value="脫水"></td>
+                        <td>脫水</td>
+                    </tr>
+                    <tr>
+                        <td class='rowspan' rowspan="3">肝臟</td>
+                        <td><input type="checkbox" value="肝指數持續增高"></td>
+                        <td>肝指數持續增高</td>
+
+                        <td><input type="checkbox" value="腿痛/小腿抽筋"></td>
+                        <td>腿痛/小腿抽筋</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="肝炎/黃膽"></td>
+                        <td>肝炎/黃膽</td>
+
+                        <td><input type="checkbox" value="水腫"></td>
+                        <td>水腫</td>
+                    </tr>
+                    <tr>
+
+                        <td><input type="checkbox" value="常感覺疲倦/不想動"></td>
+                        <td>常感覺疲倦/不想動</td>
+
+                        <td><input type="checkbox" value="虛弱無力"></td>
+                        <td>虛弱無力</td>
+                    </tr>
+                </table>
+                <button type="button" class="btn" onclick="submitForm_symptom()">症狀送出</button>
+                <button type="button" class="reset">重置</button>
+            </form>
+
+        </div>
+        <div class="result">
+            <dl>
+                <button class='btn2' type="button">前後測表單</button>
+            </dl>
+            <form id="checkbox" class="dataResult" style="font-size: 15px;">
+                <label class='option' for="quizBtn1">前測</label><input type="radio" value="前測" id="quizBtn1"
+                    class="quizBtn" name="quizBtn" checked>
+                <label class='option' for="quizBtn2">後測</label><input type="radio" value="後測" id="quizBtn2"
+                    class="quizBtn" name="quizBtn">
+
+                <table class="table table-bordered table-hover table-condensed">
+                    <tr>
+                        <td class='rowspan'>心血管</td class='rowspan'>
+                        <td>
+                            <label class='option' for="htn">高血壓<input id="htn" onchange="displayQuiz(this)"
+                                    type='checkbox' value="高血壓"></label>
+                            <label class='option' for="cad">冠心症<input id="cad" onchange="displayQuiz(this)"
+                                    type='checkbox' value="冠心症"></label>
+                            <label class='option' for="hf">心衰竭<input id="hf" onchange="displayQuiz(this)"
+                                    type='checkbox' value="心衰竭"></label>
+                            <label class='option' for="af">心房顫動<input id="af" onchange="displayQuiz(this)"
+                                    type='checkbox' value="心房顫動"></label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class='rowspan'>內分泌</td class='rowspan'>
+                        <td>
+                            <label class='option' for="dm">糖尿病<input id="dm" onchange="displayQuiz(this)"
+                                    type='checkbox' value="糖尿病"></label>
+                            <label class='option' for="gout">痛風<input id="gout" onchange="displayQuiz(this)"
+                                    type='checkbox' value="痛風"></label>
+                            <label class='option' for="lipid">血脂異常<input id="lipid" onchange="displayQuiz(this)"
+                                    type='checkbox' value="血脂異常"></label>
+                            <label class='option' for="thyroid">甲狀腺異常<input id="lipid" onchange="displayQuiz(this)"
+                                    type='checkbox' value="甲狀腺異常"></label>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class='rowspan'>神經科</td class='rowspan'>
+                        <td>
+                            <label class='option' for="stroke">中風<input id="stroke" onchange="displayQuiz(this)"
+                                    type='checkbox' value="中風"></label>
+                            <label class='option' for="parkinson">帕金森氏症<input id="parkinson"
+                                    onchange="displayQuiz(this)" type='checkbox' value="帕金森氏症"></label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class='rowspan'>胸腔科</td class='rowspan'>
+                        <td>
+                            <label class='option' for="asthma">氣喘<input id="asthma" onchange="displayQuiz(this)"
+                                    type='checkbox' value="氣喘"></label>
+                            <label class='option' for="copd">慢性阻塞性肺病<input id="copd" onchange="displayQuiz(this)"
+                                    type='checkbox' value="慢性阻塞性肺病"></label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class='rowspan'>腎臟科</td class='rowspan'>
+                        <td>
+                            <label class='option' for="ckd">慢性腎臟病<input id="ckd" onchange="displayQuiz(this)"
+                                    type='checkbox' value="慢性腎臟病"></label>
+                            <label class='option' for="anemia">貧血<input id="anemia" onchange="displayQuiz(this)"
+                                    type='checkbox' value="貧血"></label>
+                        </td>
+                    </tr>
+                </table>
+
+            </form>
+            <form id="form_quiz" class="dataResult">
+                <div id="forRemove_quiz"></div>
+                <br>
+                <button type="button" class="btn" onclick="submitForm_quiz()">疾病送出</button>
+                <button type="button" class="reset">重置</button>
+            </form>
+        </div>
+
+        <div class="result">
+            <dl>
+                <button class='btn2' type="button">ICOPE量表</button>
+            </dl>
+            <form id="form_ICOPE" class="dataResult">
+                <div id="result_ICOPE"></div>
+                <button type="button" class="btn" onclick="submitForm_ICOPE()">ICOPE送出</button>
+                <button type="button" class="reset">重置</button>
+            </form>
+        </div>
+
+        <div class="result">
+            <dl>
+                <button class='btn2' type="button">配合度結果</button>
+            </dl>
+            <div class="dataResult" style="background-color: aliceblue;color: rgb(29, 51, 87);font-weight: bold;">
+                <ul style="padding-inline: 20px;">
+                    <li>建議以病人本次住院前一個月使用藥品之依順性評估。</li>
+                    <li> 評估量表勾選: (請依建議發生頻率估算)◦
+                        <ol>
+                            <li>從未如此: 從未發生。</li>
+                            <li>有時如此: 約每週發生1-2天。</li>
+                            <li>經常如此: 約每週發生3-4天。</li>
+                            <li>總是如此: 約每週發生大於5天。</li>
+                        </ol>
+
+                    <li>本量表第12題為反向題，統計時需反轉後計算。</li>
+                </ul>
+
+            </div>
+            <form id="form_cooperate" class="dataResult">
+
+                <div id="result_cooperate"></div>
+                <ul id="sum"></ul>
+                <button type="button" class="btn" onclick="getSum()">總分</button>
+                <button type="button" class="btn" onclick="submitForm_cooperate()">配合度送出</button>
+                <button type="button" class="reset">重置</button>
+                <label class='btn' for="cooperateBtn">機構&nbsp;<input id="cooperateBtn" name="cooperateBtn"
+                        type='checkbox' value="機構"></label>
+
+            </form>
+        </div>
+
+        <br>
+    </div>
+    <div id="searchData" style="margin-top: 50px; display: none;" class="page">
+        <form onsubmit="searchData()" id="search">
+            <label for="searchId">病歷號 :&nbsp;</label><input id="searchId" type="text" onfocus="this.value=''"
+                placeholder="輸入病歷號">
+            <input type="submit" value="送出">
+        </form>
+        <br>
+        <div class="result">
+            <dl>
+                <button class='btn2 active' type="button">症狀回報</button>
+            </dl>
+            <ul id="dataResult_symptom" class="dataResult" style="display: inline;"></ul>
+        </div>
+        <div class="result">
+            <dl>
+                <button class='btn2' type="button">前後測結果</button>
+            </dl>
+            <ul id="dataResult_quiz" class="dataResult"></ul>
+        </div>
+        <div class="result">
+            <dl>
+                <button class='btn2' type="button">ICOPE量表</button>
+            </dl>
+            <ul id="dataResult_ICOPE" class="dataResult"></ul>
+        </div>
+        <div class="result">
+            <dl>
+                <button class='btn2' type="button">配合度結果</button>
+            </dl>
+            <ul id="dataResult_cooperate" class="dataResult"></ul>
+        </div>
+    </div>
+</body>
+
+</html>

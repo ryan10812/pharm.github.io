@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <title>通報表單</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+    <script src="https://apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://apps.bdimg.com/libs/jquerymobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <link rel="stylesheet" href="https://apps.bdimg.com/libs/jquerymobile/1.4.5/jquery.mobile-1.4.5.min.css">
+
+    <style>
+        .container-contact {
+            padding: 20px;
+            text-align: center;
+            color: white;
+            background-color: rgb(4, 35, 104);
+            width: 100%;
+        }
+        
+        .container-contact h3 {
+            font-size: 30px;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .btn {
+            width: 100%;
+            font-size: 20px;
+            font-weight: bolder;
+            margin: 20px 0px 20px 0px;
+            background-color: rgb(200, 210, 255);
+            color: rgb(8, 37, 100);
+            border-radius: 20px;
+            transition: 1s;
+        }
+        
+        .btn:hover {
+            background-color: rgb(0, 0, 0);
+            color: rgb(255, 255, 255);
+        }
+        
+        input {
+            margin-top: 10px;
+        }
+    </style>
+
+
+</head>
+
+<body>
+    
+    <div data-role="page">
+
+        <div data-role="main">
+            <div class="container-contact">
+                <h3>血壓/心跳紀錄</h3>
+        
+                <div class="row">
+                    <div class="col-sm-4">
+        
+                    </div>
+                    <div class="col-sm-4">
+                        <form id="myForm">
+                            <div class="row">
+        
+                                <div class="col-sm-6 form-group">
+                                    <input class="required" id="name" name="name" placeholder="請輸入病歷號" type="number">
+                                </div>
+        
+                                <div class="col-sm-6 form-group">
+                                    <input class="required" id="birth" name="birth" placeholder="請輸入您的生日(ex:1996/04/05)" type="text">
+                                </div>
+                                <div class="col-sm-6 form-group">
+                                    <input class="required" id="hr" name="hr" placeholder="請輸入您量測的心跳(次/分鐘)(ex:72)" type="number">
+                                </div>
+                                <div class="col-sm-6 form-group">
+                                    <input class="required" id="bp" name="bp" placeholder="請輸入您量測的血壓(ex:150/90)" type="text">
+                                </div>
+        
+                            </div>
+                            <br>
+                            <textarea class="form-control" id="comments" name="comments" placeholder="其他記錄事項" rows="5"></textarea>
+                            <div class="row">
+                                <div class="col-md-12 form-group">
+                                    <a href="#myPopup" data-rel="popup" class="btn" id="submitButton">送出</a>
+                                </div>
+                            </div>
+                        </form>                                     
+                    </div>
+                    <div class="col-sm-4">
+        
+                    </div>
+                </div>
+            </div>
+        
+                
+        
+            <div data-role="popup" id="myPopup" class="ui-content">
+            <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn ui-icon-delete ui-btn-icon-notext ui-btn-right">關閉</a>
+                <p style="font-weight: bolder; color: rgb(0, 12, 66); text-align: center ;"></p><h1>*感謝您的紀錄!*</h1><p></p>
+                <br>
+                <p id="hisName"></p>
+                <p id="hisBirth"></p>
+                <p id="hisHr"></p>
+                <p id="hisBp"></p>
+                <br>
+                <p></p><h5>請持續每天量測血壓及心跳</h5><p></p>
+                <p></p><h5>回診時我們會將資訊提供給醫師</h5><p></p>
+            </div>
+        </div>
+        
+    </div> 
+    
+    
+
+    <script>
+        function getValue(){
+            var name=document.getElementById('name');
+            var birth=document.getElementById('birth');
+            var hr=document.getElementById('hr');
+            var bp=document.getElementById('bp');
+            var comments=document.getElementById('comments');
+            var rowData={
+                name:name.value,
+                birth:birth.value,
+                hr:hr.value,
+                bp:bp.value,
+                comments:comments.value
+                
+            }
+        
+        google.script.run.addData(rowData);
+        
+        document.getElementById('myForm').reset();
+        
+        document.getElementById('hisName').innerHTML='病歷號 : '+rowData.name;
+        document.getElementById('hisBirth').innerHTML='生日 : '+rowData.birth;
+        document.getElementById('hisHr').innerHTML='心跳 : '+rowData.hr+' 次/分鐘';
+        document.getElementById('hisBp').innerHTML='血壓 : '+rowData.bp+' mmHg';
+
+        
+
+    };
+        document.getElementById('submitButton').addEventListener('click',getValue); 
+
+    </script>
+
+</body>
+
+</html>
